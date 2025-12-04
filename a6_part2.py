@@ -51,7 +51,7 @@ def visualize_features(data):
     
     # Plot 1: Feet vs Price
     axes[0, 0].scatter(data['SquareFeet'], data['Price'], color='blue', alpha=0.6)
-    axes[0, 0].set_xlabel('Square Feet (1000s of miles)')
+    axes[0, 0].set_xlabel('Square Feet (1000s of feet)')
     axes[0, 0].set_ylabel('Price ($)')
     axes[0, 0].set_title('Square Feet vs Price')
     axes[0, 0].grid(True, alpha=0.3)
@@ -65,26 +65,26 @@ def visualize_features(data):
     
     # Plot 3: Bedrooms vs Price
     axes[1, 0].scatter(data['Bedrooms'], data['Price'], color='red', alpha=0.6)
-    axes[1, 0].set_xlabel('Bedrooms')
+    axes[1, 0].set_xlabel('Bedrooms (# of)')
     axes[1, 0].set_ylabel('Price ($)')
     axes[1, 0].set_title('Bedrooms vs Price')
     axes[1, 0].grid(True, alpha=0.3)
 
     # Plot 4: Bathrooms vs Price
     axes[1, 0].scatter(data['Bathrooms'], data['Price'], color='yellow', alpha=0.6)
-    axes[1, 0].set_xlabel('Bathrooms')
+    axes[1, 0].set_xlabel('Bathrooms (# of)')
     axes[1, 0].set_ylabel('Price ($)')
     axes[1, 0].set_title('Bathrooms vs Price')
     axes[1, 0].grid(True, alpha=0.3)
     
-    # Plot 4: Leave empty for now (or add another feature later)
+    # Plot 5: Leave empty for now (or add another feature later)
     axes[1, 1].text(0.5, 0.5, 'Space for additional features', 
                     ha='center', va='center', fontsize=12)
     axes[1, 1].axis('off')
     
     plt.tight_layout()
-    plt.savefig('car_features.png', dpi=300, bbox_inches='tight')
-    print("\n✓ Feature plots saved as 'car_features.png'")
+    plt.savefig('house_features.png', dpi=300, bbox_inches='tight')
+    print("\n✓ Feature plots saved as 'house_features.png'")
     plt.show()
 
 
@@ -100,7 +100,7 @@ def prepare_features(data):
         y - Series with target column
     """
     # Select multiple feature columns
-    feature_columns = ['Mileage', 'Age', 'Brand']
+    feature_columns = ['SquaredFeet', 'Age', 'Bedrooms','Bathrooms']
     X = data[feature_columns]
     y = data['Price']
     
@@ -129,17 +129,24 @@ def split_data(X, y):
     Returns:
         X_train, X_test, y_train, y_test
     """
-    # Split to match unplugged activity: first 15 for training, last 3 for testing
-    # Note: For assignment, you should be using the train_test_split function
-    X_train = X.iloc[:15]  # First 15 rows
-    X_test = X.iloc[15:]   # Remaining rows (should be 3)
-    y_train = y.iloc[:15]
-    y_test = y.iloc[15:]
-    
+    #  Split to match unplugged activity: first 15 for training, last 3 for testing
+    #  Note: For assignment, you should be using the train_test_split function
+    # X_train = X.iloc[:15]   First 15 rows
+    # X_test = X.iloc[15:]    Remaining rows (should be 3)
+    # y_train = y.iloc[:15]
+    # y_test = y.iloc[15:]
+
+    # TODO: Split into train (80%) and test (20%) with random_state=42
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.2, random_state=42)
+    # TODO: Print how many samples are in training and testing sets
     print(f"\n=== Data Split (Matching Unplugged Activity) ===")
-    print(f"Training set: {len(X_train)} samples (first 15 cars)")
-    print(f"Testing set: {len(X_test)} samples (last 3 cars - your holdout set!)")
-    print(f"\nNOTE: We're NOT scaling features here so coefficients are easy to interpret!")
+    print(f"Training set: {len(X_train)} samples")
+    print(f"Testing set: {len(X_test)} samples")
+    
+    # print(f"\n=== Data Split (Matching Unplugged Activity) ===")
+    # print(f"Training set: {len(X_train)} samples (first 15 houses)")
+    # print(f"Testing set: {len(X_test)} samples (last 3 houses - your holdout set!)")
+    # print(f"\nNOTE: We're NOT scaling features here so coefficients are easy to interpret!")
     
     return X_train, X_test, y_train, y_test
 
@@ -236,15 +243,16 @@ def compare_predictions(y_test, predictions, num_examples=5):
         
         print(f"${actual:>13.2f}   ${predicted:>13.2f}   ${error:>10.2f}   {pct_error:>6.2f}%")
 
-def make_prediction(model, mileage, age, brand):
+def make_prediction(model, feet2, age, bedrooms, bathrooms):
     """
     Make a prediction for a specific car
     
     Args:
         model: trained LinearRegression model
-        mileage: mileage value (in thousands)
+        feet2: SquaredFeet value (in thousands)
         age: age in years
-        brand: brand code (0=Toyota, 1=Honda, 2=Ford)
+        bedrooms: bedrooms in number of bedrooms
+        bathrooms: bathrooms in number of bathrooms
     
     Returns:
         predicted price
