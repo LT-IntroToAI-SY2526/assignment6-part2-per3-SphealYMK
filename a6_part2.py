@@ -49,7 +49,7 @@ def visualize_features(data):
     fig, axes = plt.subplots(2, 2, figsize=(12, 10))
     fig.suptitle('House Features vs Price', fontsize=16, fontweight='bold')
     
-    # Plot 1: Mileage vs Price
+    # Plot 1: Feet vs Price
     axes[0, 0].scatter(data['SquareFeet'], data['Price'], color='blue', alpha=0.6)
     axes[0, 0].set_xlabel('Square Feet (1000s of miles)')
     axes[0, 0].set_ylabel('Price ($)')
@@ -63,11 +63,18 @@ def visualize_features(data):
     axes[0, 1].set_title('Age vs Price')
     axes[0, 1].grid(True, alpha=0.3)
     
-    # Plot 3: Brand vs Price
-    axes[1, 0].scatter(data['Brand'], data['Price'], color='red', alpha=0.6)
-    axes[1, 0].set_xlabel('Brand (0=Toyota, 1=Honda, 2=Ford)')
+    # Plot 3: Bedrooms vs Price
+    axes[1, 0].scatter(data['Bedrooms'], data['Price'], color='red', alpha=0.6)
+    axes[1, 0].set_xlabel('Bedrooms')
     axes[1, 0].set_ylabel('Price ($)')
-    axes[1, 0].set_title('Brand vs Price')
+    axes[1, 0].set_title('Bedrooms vs Price')
+    axes[1, 0].grid(True, alpha=0.3)
+
+    # Plot 4: Bathrooms vs Price
+    axes[1, 0].scatter(data['Bathrooms'], data['Price'], color='yellow', alpha=0.6)
+    axes[1, 0].set_xlabel('Bathrooms')
+    axes[1, 0].set_ylabel('Price ($)')
+    axes[1, 0].set_title('Bathrooms vs Price')
     axes[1, 0].grid(True, alpha=0.3)
     
     # Plot 4: Leave empty for now (or add another feature later)
@@ -242,15 +249,13 @@ def make_prediction(model, mileage, age, brand):
     Returns:
         predicted price
     """
-    # Create input array in the correct order: [Mileage, Age, Brand]
-    car_features = pd.DataFrame([[mileage, age, brand]], 
-                                 columns=['Mileage', 'Age', 'Brand'])
-    predicted_price = model.predict(car_features)[0]
-    
-    brand_name = ['Toyota', 'Honda', 'Ford'][brand]
+    # Create input array in the correct order: 
+    house_features = pd.DataFrame([[feet2, age, bedrooms, bathrooms]], 
+                                 columns=['SquaredFeet', 'Age', 'Bedrooms','Bathrooms'])
+    predicted_price = model.predict(house_features)[0]
     
     print(f"\n=== New Prediction ===")
-    print(f"Car specs: {mileage:.0f}k miles, {age} years old, {brand_name}")
+    print(f"House specs: {feet2:.0f}k miles, {age} years old, with {bedrooms} Bedrooms, and {bathrooms} Bathrooms")
     print(f"Predicted price: ${predicted_price:,.2f}")
     
     return predicted_price
@@ -259,11 +264,11 @@ def make_prediction(model, mileage, age, brand):
 
 if __name__ == "__main__":
     print("=" * 70)
-    print("CAR PRICE PREDICTION - MULTIVARIABLE LINEAR REGRESSION")
+    print("HOUSE PRICE PREDICTION - MULTIVARIABLE LINEAR REGRESSION")
     print("=" * 70)
     
     # Step 1: Load and explore
-    data = load_and_explore_data('car_prices.csv')
+    data = load_and_explore_data('house_prices.csv')
     
     # Step 2: Visualize all features
     visualize_features(data)
@@ -284,7 +289,7 @@ if __name__ == "__main__":
     compare_predictions(y_test, predictions)
 
     # Step 8: Make a new prediction
-    make_prediction(model, 45, 3, 0)  # 45k miles, 3 years, Toyota
+    make_prediction(model, 4.5, 3, 2, 2)  # 4.5k squared Feet, 3 years, 2 Bedrooms and Bathrooms
     
     print("\n" + "=" * 70)
     print("✓ Example complete! Check out the saved plots.")
